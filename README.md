@@ -8,6 +8,17 @@ This assignment requires you to create a Java game application similar to the vi
 
 ![System UML Diagram](./img/System.png)
 
+## Git and GitHub
+
+You will submit this project using GitHub pull requests. You **must** create a GitHub pull request for each level to receive credit. You should request your assigned reviewer on your pull request. Review the following resource on git and GitHub for major programs _before_ you start work:
+
+- [Written Explanation](https://gist.github.com/ccannon94/511115be821a873ae9ec5f4db9cfdda0)
+- [YouTube Video](https://www.youtube.com/watch?v=l2bP9JKQkdA)
+
+You **must** complete all work on a separate branch. You CAN NOT push code to the master branch. Review the above git and GitHub resources to learn about branching.
+
+You **must** add your assigned TA as a reviewer for your pull requests. You can find your assigned reviewer [here](./assigned-reviewers.csv). **Reviewer assignments have changed since MP1 so please check this document again**.
+
 ## Classes and Interfaces
 
 You are required to implement the following classes at a minimum.   You may add other classes (and methods) if you need them.
