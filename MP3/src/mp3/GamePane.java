@@ -8,11 +8,13 @@ package mp3;
 import java.util.Timer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -29,17 +31,20 @@ public class GamePane extends Application {
     private TheHord theHord;
 
     public GamePane() {
-
+        
         this.actionPane = new ActionPane();
         this.cmdCenter = new CmdCenter(actionPane);
-        this.spaceShip = null;
+        actionPane.setCenter(cmdCenter);
+        this.spaceShip = new SpaceShip();
+        actionPane.getChildren().add(spaceShip);
+        this.spaceShip.startMovementTimer();
         this.gameTimer = null;
         this.theHord = null;
 
     }
 
     public void addGameObject(GameObject gameObject) {
-
+        this.actionPane.getChildren().add(gameObject); 
     }
 
     public static boolean isgoEast(){
@@ -71,7 +76,13 @@ public class GamePane extends Application {
         
         
         Scene scene = new Scene(window, 550, 600);
-
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+    @Override
+    public void handle(WindowEvent t) {
+        Platform.exit();
+        System.exit(0);
+    }
+});
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {

@@ -14,16 +14,20 @@ import javafx.scene.image.Image;
  *
  * @author jamesostmann
  */
-public class Alien extends Invader{
+public class Alien extends Invader {
+
     private ActionPane actionPane;
     private int currentImage;
     private int type;
     private Rectangle2D[] viewPorts;
-    
-    
+    public Rectangle2D destroyed;
+    public Rectangle2D blank = new Rectangle2D(230, 353, 29, 17);
+    public boolean visible = true;
+
     private void setSpriteSheet() {
         try {
-
+           
+           
             Image image = new Image(new FileInputStream("res/spritesheet.jpg"));
             this.setImage(image);
             this.setScaleX(1);
@@ -37,94 +41,77 @@ public class Alien extends Invader{
     }
 
     public Alien(ActionPane actionPane, int type, int currentImage) {
-        
+
         setSpriteSheet();
         this.currentImage = currentImage;
         this.actionPane = actionPane;
         this.type = type;
         viewPorts = new Rectangle2D[2];
-        
-        switch(type) {
-            
+
+        switch (type) {
+
             case 0:
-                
                 createLargeAlien();
                 break;
             case 1:
-                
                 createMediumAlien();
                 break;
             case 2:
-                
                 createSmallAlien();
                 break;
-        
+
         }
-        
-        
+
         this.setViewport(viewPorts[0]);
-    
-    }
-    
-    private void createLargeAlien(){
-        
-        viewPorts[0] = new Rectangle2D(7,414,31,18);
-        viewPorts[1] = new Rectangle2D(7,437,31,18);
-       
-        
-    
-    }
-    private void createMediumAlien(){
-        
-        viewPorts[0] = new Rectangle2D(54,412,31,19);
-        viewPorts[1] = new Rectangle2D(54,436,31,19);
-    }
-    private void createSmallAlien(){
-        
-        viewPorts[0] = new Rectangle2D(102,415,30,21);
-        viewPorts[1] = new Rectangle2D(102,435,30,21);
+
     }
 
-    public ActionPane getActionPane() {
-        return actionPane;
+    private void createLargeAlien() {
+        setPointValue(100);
+        viewPorts[0] = new Rectangle2D(7, 414, 31, 18);
+        viewPorts[1] = new Rectangle2D(7, 437, 31, 18);
+        destroyed = new Rectangle2D(181, 421, 27, 18);
+
     }
 
-    public void setActionPane(ActionPane actionPane) {
-        this.actionPane = actionPane;
+    private void createMediumAlien() {
+        setPointValue(50);
+        viewPorts[0] = new Rectangle2D(54, 412, 31, 19);
+        viewPorts[1] = new Rectangle2D(54, 436, 31, 19);
+        destroyed = new Rectangle2D(145, 432, 27, 19);
+
     }
 
+    private void createSmallAlien() {
+        setPointValue(10);
+        viewPorts[0] = new Rectangle2D(102, 415, 30, 21);
+        viewPorts[1] = new Rectangle2D(102, 435, 30, 21);
+        destroyed = new Rectangle2D(145, 413, 30, 18);
+    }
+
+    
     public int getCurrentImage() {
         return currentImage;
     }
 
-    public void setCurrentImage(int currentImage) {
-        
+    public void toggleImage(int currentImage) {
+
         this.currentImage = currentImage;
-        this.setViewport(viewPorts[currentImage]); 
+        this.setViewport(viewPorts[currentImage]);
     }
 
-    public int getType() {
-        return type;
+    public void toggleDestroyed() {
+        this.setViewport(destroyed);
+
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void toggleBlank() {
+        this.setViewport(blank);
     }
 
-    public Rectangle2D[] getViewPorts() {
-        return viewPorts;
-    }
-
-    public void setViewPorts(Rectangle2D[] viewPorts) {
-        this.viewPorts = viewPorts;
-    }
-
-    
     @Override
     public void move() {
-        
-        
-        
+
     }
-    
+
 }

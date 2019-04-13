@@ -5,16 +5,11 @@
  */
 package mp3;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
 import java.util.ArrayList;
 import javafx.animation.AnimationTimer;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -24,15 +19,14 @@ import javafx.scene.shape.Rectangle;
  * @author jamesostmann
  */
 public class ActionPane extends Pane {
-
+    private CmdCenter center;
     public Alien[][] horde = new Alien[5][11];
-    private ArrayList<Rectangle> recs;
+    public int[] collumnStates = new int[11];
     private Animation a;
 
     private void makeAliens() {
 
-        double width = (550.0 / 5.0) - 10.0;
-        double height = (600 / 11.0) - 10.0;
+       
 
         double spaceX = 0.0;
         double spaceY = 0.0;
@@ -69,111 +63,39 @@ public class ActionPane extends Pane {
 
     }
 
-    private void init() {
-        int j = 0;
-        for (int i = 1; i < 14; i++) {
-
-            Rectangle r = new Rectangle();
-
-            r = new Rectangle();
-            r.setX(i * 10 + j);
-            r.setY(30);
-            r.setWidth((550.0 / 15.0));
-            r.setHeight(50);
-            r.setFill(Color.ORANGE);
-            this.getChildren().add(r);
-            recs.add(r);
-
-            j += 30;
-        }
-        j = 0;
-        for (int i = 1; i < 14; i++) {
-
-            Rectangle r = new Rectangle();
-
-            r = new Rectangle();
-            r.setX(i * 10 + j);
-            r.setY(90);
-            r.setWidth((550.0 / 15.0));
-            r.setHeight(50);
-            r.setFill(Color.ORANGE);
-            this.getChildren().add(r);
-            recs.add(r);
-
-            j += 30;
-        }
-    }
-
     public ActionPane() {
+        
         makeAliens();
-        recs = new ArrayList<>();
-        //  init();
         this.setHeight(600.0);
         this.setWidth(550.0);
         this.setBackgroundImage();
-
         a = new Animation();
         a.start();
 
     }
-
-    public ArrayList<Rectangle> getR() {
-
-        return this.recs;
-
-    }
-
-    public int recSize() {
-        return recs.size();
-    }
-
-    public Rectangle getRec(int i) {
-        return recs.get(i);
-    }
-
-    public void removeRec(int i) {
-        recs.remove(recs.get(i));
+    
+    public void setCenter(CmdCenter center) {
+        this.center = center;
     }
 
     private void setBackgroundImage() {
-        try {
 
-            FileInputStream input = new FileInputStream("res/bg.jpg");
-            Image image = new Image(input);
-            BackgroundImage backgroundimage = new BackgroundImage(image,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundPosition.DEFAULT,
-                    BackgroundSize.DEFAULT);
+        Background background = new Background(new BackgroundFill(Color.BLACK, null, null));
+        this.setBackground(background);
 
-            Background background = new Background(backgroundimage);
-            this.setBackground(background);
-
-        } catch (FileNotFoundException e) {
-
-            System.err.println("Couldnt Find Image For Background");
-            System.exit(-1);
-
-        }
     }
 
     class Animation extends AnimationTimer {
 
         int count = 0;
         double timerCount = 0.0;
-        boolean right,left = false;
+        boolean right = false;
+        boolean down = false;
+        boolean left = true;
+        boolean dead = false;
 
         @Override
         public void handle(long now) {
-            /*  
-        for(Rectangle rec: recs) {
-            
-            rec.setTranslateX(rec.getTranslateX() + 1.0);
-            
-        }
-             */
-            /// before animation , for all aliens if alien is off screen set dir 
-            // then move all aliens
             if (timerCount >= 1) {
 
                 if (count == 0) {
@@ -181,8 +103,11 @@ public class ActionPane extends Pane {
                     for (Alien tempArray[] : horde) {
                         for (Alien temp : tempArray) {
 
-                            if (temp != null) {
-                                temp.setCurrentImage(count);
+                            if (temp.visible) {
+                                temp.toggleImage(count);
+                            }
+                            if (!temp.visible) {
+                                temp.toggleBlank();
                             }
 
                         }
@@ -193,8 +118,12 @@ public class ActionPane extends Pane {
                 } else {
                     for (Alien tempArray[] : horde) {
                         for (Alien temp : tempArray) {
-                            if (temp != null) {
-                                temp.setCurrentImage(count);
+                            if (temp.visible) {
+                                temp.toggleImage(count);
+                            }
+
+                            if (!temp.visible) {
+                                temp.toggleBlank();
                             }
 
                         }
@@ -211,44 +140,65 @@ public class ActionPane extends Pane {
                 for (Alien t : temp) {
                     if (t != null) {
 
-                        if (t.getX() + t.getViewport().getWidth() >= 545) {
+                        if (t.getX() + t.getViewport().getWidth() >= 545 && t.visible) {
+
                             right = true;
                             left = false;
+                            down = true;
+
+                        }
+
+                        if (t.getX() <= 0 && t.visible) {
+
+                            left = true;
+                            right = false;
+                            down = true;
 
                         }
                         
-                        if(t.getX() <= 0) {
-                            left = true;
-                            right = false;
+                        if(t.getBoundsInParent().intersects(center.getBoundsInParent()) && t.visible) {
+                            dead = true;
+                           // System.exit(0);
                         }
+
                     }
                 }
             }
 
-          
-                for (Alien[] temp : horde) {
-                    for (Alien t : temp) {
-                        if (t != null) {
-                            
-                            if(right){
-                            
-                                t.setX(t.getX() - 1);
-                            } 
-                            
-                            if(left) {
-                            
-                                t.setX(t.getX() +1); 
-                            
-                            } 
-                            if(!left && !right) {
-                                 t.setX(t.getX() +1); 
-                            }
+            for (Alien[] temp : horde) {
+                for (Alien t : temp) {
+                    if (t != null) {
+
+                        if (right) {
+
+                            t.setX(t.getX() - 2.0);
+
+                        }
+
+                        if (left) {
+
+                            t.setX(t.getX() + 2.0);
+
+                        }
+
+                        if (down) {
+                            t.setY(t.getY() + 2.0);
+                        }
+                        
+                        if(dead) {
+                            Sound.playSound(2);
+                            stop();
+                            // resetHorde();
+                        
                         }
 
                     }
 
                 }
-            
+
+            }
+
+            down = false;
 
             timerCount += .03;
 
