@@ -35,9 +35,9 @@ public class GamePane extends Application {
         this.actionPane = new ActionPane();
         this.cmdCenter = new CmdCenter(actionPane);
         actionPane.setCenter(cmdCenter);
+        
         this.spaceShip = new SpaceShip();
         actionPane.getChildren().add(spaceShip);
-        this.spaceShip.startMovementTimer();
         this.gameTimer = null;
         this.theHord = null;
 
@@ -132,9 +132,9 @@ public class GamePane extends Application {
             
             @Override
             public void handle(long now) {
-            
                 
-               
+             
+                spaceShip.move();
                 cmdCenter.move();
             
             

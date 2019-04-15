@@ -6,13 +6,12 @@
 package mp3;
 
 
-import java.util.ArrayList;
+
 import javafx.animation.AnimationTimer;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 /**
  *
@@ -29,7 +28,7 @@ public class ActionPane extends Pane {
        
 
         double spaceX = 0.0;
-        double spaceY = 0.0;
+        double spaceY = 40.0;
 
         for (int y = 0; y < 5; y++) {
             for (int x = 0; x < 11; x++) {

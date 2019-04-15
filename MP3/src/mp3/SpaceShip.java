@@ -18,13 +18,15 @@ import javafx.scene.image.Image;
  * @author jamesostmann
  */
 public class SpaceShip extends Invader {
-
+    
+    private final double[] direction = {Movable.EAST,Movable.WEST};
+    
     private Timer moveTimer;
     private Timer launchTimer;
     private GamePane gamePanel;
     private Random rand;
     private int randNum;
-    
+    private boolean moving;
     
     public SpaceShip() {
         
@@ -33,6 +35,10 @@ public class SpaceShip extends Invader {
         moveTimer = new Timer();
         rand = new Random();
         randNum = 0;
+        moving = false;
+        this.setX(-this.getViewport().getWidth()); 
+        this.setY(getViewport().getHeight() / 2.0);
+
         
     }
     
@@ -41,20 +47,9 @@ public class SpaceShip extends Invader {
 
 
             Image image = new Image(new FileInputStream("res/spritesheet.jpg"));
-            
-            this.setImage(image);   
-            
-            Rectangle2D view = new Rectangle2D(304,624,156,73);
-            this.setViewport(view);
-            
-            
-
-            setX(-200);
-            setY(300);
-            setScaleX(.3);
-            setScaleY(.3);
-           
-            
+            this.setImage(image); 
+            Rectangle2D view = new Rectangle2D(168,177,42,19);
+            setViewport(view);
 
         } catch (FileNotFoundException e) {
 
@@ -64,6 +59,12 @@ public class SpaceShip extends Invader {
     
     }
     
+    public boolean isMoving() {
+        return moving;
+    }
+    public void setMoving(boolean moving) {
+        this.moving = moving;
+    }
     public void startLaunchTimer() {
         
         TimerTask t = new LaunchTimer();
@@ -79,15 +80,27 @@ public class SpaceShip extends Invader {
     
     
     public void startMovementTimer() {
-        
+      
+       resetShip();
        TimerTask t = new MovementTimer();
+       moveTimer = new Timer();
        moveTimer.schedule(t,3000,20);
+       
     }
     
+   
     public void stopMovementTimer() {
-        moveTimer.cancel();
-    }
+        
     
+      moveTimer.purge();
+      
+      
+    }
+    private void resetShip(){
+        
+        setVisible(true);
+        moving = true;
+    }
     
     
     public int getRandom() {
@@ -98,9 +111,8 @@ public class SpaceShip extends Invader {
     
     @Override
     public void move() {
-        
-        this.setX(this.getX() + 5.0); 
-        
+        double h = direction[0];
+        this.setX(this.getX() + 1.0); 
     }
     
     
@@ -118,15 +130,8 @@ public class SpaceShip extends Invader {
 
         @Override
         public void run() {
-               if(getX() + (getViewport().getWidth() * .3)  >= 542) {
             
-                this.cancel();
-                
-            }
-            
-            move();
-            
-            
+             
         }
     
     }

@@ -164,8 +164,10 @@ public class CmdCenter extends GameObject {
                             if(s.getBoundsInParent().intersects(projectile.getBoundsInParent())) {
                                 
                                 actionPane.getChildren().remove(projectile);
-                                actionPane.getChildren().remove(s);
-                                s.stopMovementTimer();
+                                s.setVisible(false);
+                                s.setMoving(false);
+                                
+                                
                                 
                             }
                             
