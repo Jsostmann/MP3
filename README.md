@@ -47,9 +47,9 @@ Projectiles are fired by the CmdCenter.  Only one projectile will be active.
 
 ### SpaceShip Class
 
-This class defines the ship the moves across the top of the screen at random intervals.  The Spaceship will have two timers.  One timer to control launching the ship a random intervals between 5 and 25 seconds and another Timer to control the SpaceShip animation.  The SpaceShip can be launched moving east to west or moving west to east.
+This class defines the ship the moves across the top of the screen at random intervals.  The Spaceship will have two timing intervals.  One interval to control launching the ship at random intervals between 5 and 25 seconds and another timer interval to control the Spaceship animation.  The Spaceship can be launched moving east to west or moving west to east.
 
-![Spaceship UML](./img/SpaceShip.png)
+![Spaceship UML](https://github.com/NCATCS/Spring2019-MP3/blob/master/img/SpaceShip.png)
 
 ### Alien Class
 
