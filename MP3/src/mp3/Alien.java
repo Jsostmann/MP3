@@ -19,10 +19,11 @@ public class Alien extends Invader {
     private ActionPane actionPane;
     private int currentImage;
     private int type;
+    private boolean alive;
     private Rectangle2D[] viewPorts;
     public Rectangle2D destroyed;
     public Rectangle2D blank = new Rectangle2D(230, 353, 29, 17);
-    public boolean visible = true;
+    
 
     private void setSpriteSheet() {
         try {
@@ -47,17 +48,19 @@ public class Alien extends Invader {
         this.actionPane = actionPane;
         this.type = type;
         viewPorts = new Rectangle2D[2];
-
+        alive = true;
+        setSpeed(.5);
+        
         switch (type) {
 
             case 0:
-                createLargeAlien();
+                createSmallAlien();
                 break;
             case 1:
                 createMediumAlien();
                 break;
             case 2:
-                createSmallAlien();
+                createLargeAlien();
                 break;
 
         }
@@ -66,16 +69,27 @@ public class Alien extends Invader {
 
     }
 
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+    public boolean isAlive(){
+        return this.alive;
+    }
+    
+   
+    
     private void createLargeAlien() {
-        setPointValue(100);
-        viewPorts[0] = new Rectangle2D(7, 414, 31, 18);
-        viewPorts[1] = new Rectangle2D(7, 437, 31, 18);
-        destroyed = new Rectangle2D(181, 421, 27, 18);
+       
+        
+        setPointValue(40);
+        viewPorts[0] = new Rectangle2D(102, 415, 30, 21);
+        viewPorts[1] = new Rectangle2D(102, 435, 30, 21);
+        destroyed = new Rectangle2D(145, 413, 30, 18);
 
     }
 
     private void createMediumAlien() {
-        setPointValue(50);
+        setPointValue(20);
         viewPorts[0] = new Rectangle2D(54, 412, 31, 19);
         viewPorts[1] = new Rectangle2D(54, 436, 31, 19);
         destroyed = new Rectangle2D(145, 432, 27, 19);
@@ -84,9 +98,9 @@ public class Alien extends Invader {
 
     private void createSmallAlien() {
         setPointValue(10);
-        viewPorts[0] = new Rectangle2D(102, 415, 30, 21);
-        viewPorts[1] = new Rectangle2D(102, 435, 30, 21);
-        destroyed = new Rectangle2D(145, 413, 30, 18);
+        viewPorts[0] = new Rectangle2D(7, 414, 31, 18);
+        viewPorts[1] = new Rectangle2D(7, 437, 31, 18);
+        destroyed = new Rectangle2D(181, 421, 27, 18);
     }
 
     
@@ -108,9 +122,20 @@ public class Alien extends Invader {
     public void toggleBlank() {
         this.setViewport(blank);
     }
+    
+   
+    
+
+    
 
     @Override
     public void move() {
+        
+        
+        double newX = getX() + getSpeed() * Math.cos(Math.toRadians(getDirection()));
+        setX(newX);
+        
+        
 
     }
 

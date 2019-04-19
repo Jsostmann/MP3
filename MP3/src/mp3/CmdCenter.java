@@ -11,13 +11,13 @@ import javafx.animation.AnimationTimer;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 
-
 /**
  *
  * @author jamesostmann
  */
 public class CmdCenter extends GameObject {
-    private int cmdCenterPoints = 0;
+
+    private int cmdCenterPoints;
     private Projectile projectile;
     private ActionPane actionPane;
     private CmdCenterAnimation t;
@@ -28,36 +28,32 @@ public class CmdCenter extends GameObject {
     }
 
     public CmdCenter(ActionPane actionPane) {
-
-        //this.t = new CmdCenterAnimation();
+        
+        this.cmdCenterPoints = 0;
         this.actionPane = actionPane;
         this.setSpeed(10.0);
-        setCmdViewPort();
+        this.setDirection(NOWHERE);
+        this.setCmdViewPort();
         this.setParentWidth(actionPane.getPrefWidth());
         this.setParentHeight(actionPane.getPrefHeight());
-
-        actionPane.getChildren().addAll(this);
-
+        actionPane.getChildren().add(this); 
+ 
     }
 
     private void setCmdViewPort() {
         try {
 
-
             Image image = new Image(new FileInputStream("res/spritesheet.jpg"));
-            
-            this.setImage(image);   
-            
+
+            this.setImage(image);
+
             Rectangle2D view = new Rectangle2D(10, 78, 104, 67);
             this.setViewport(view);
-            
-            
 
             this.setX(210.0);
             this.setY(550.0);
             this.setScaleX(.5);
             this.setScaleY(.5);
-            
 
         } catch (FileNotFoundException e) {
 
@@ -68,18 +64,10 @@ public class CmdCenter extends GameObject {
 
     public void fireProjectile() {
 
-        /*
-         this.projectile = new Projectile();
-         projectile.setX(getX() + getViewport().getWidth() / 2.0);
-         projectile.setY(getY() + 2.0);
-         actionPane.getChildren().add(projectile);
       
-
-        t.start();
-         */
         t = new CmdCenterAnimation();
         t.start();
-        Sound.playSound(0); 
+        Sound.playSound(0);
 
     }
 
@@ -95,25 +83,37 @@ public class CmdCenter extends GameObject {
     public void move() {
 
         double newX = this.getX();
+        
+        if (getDirection() != NOWHERE) {
+            if (getDirection() == EAST && this.getX() + this.getViewport().getWidth() <= 545) {
 
-        if (GamePane.isgoEast() && this.getX() + this.getViewport().getWidth() <= 545) {
+                this.setDirection(EAST);
+                newX += getSpeed() * Math.cos(Math.toRadians(getDirection()));
 
-            this.setDirection(EAST);
-            newX += getSpeed() * Math.cos(Math.toRadians(getDirection()));
+            }
 
+            if (getDirection() == WEST && this.getX() >= 0) {
+
+                this.setDirection(WEST);
+                newX -= getSpeed() * -Math.cos(Math.toRadians(getDirection()));
+
+            }
+
+            this.setX(newX);
         }
-
-        if (GamePane.isGoWest() && this.getX() >= 0) {
-
-            this.setDirection(WEST);
-            newX -= getSpeed() * -Math.cos(Math.toRadians(getDirection()));
-
-        }
-
-        this.setX(newX);
-
     }
 
+     public ActionPane getActionPane(){
+         return this.actionPane;
+     }       
+   
+     public int getCmdCenterPoints() {
+         return this.cmdCenterPoints;
+     }
+     
+     public void updatePoints(int pts) {
+         StatusPane.updateStatus(CmdCenter.this,pts); 
+     }
     // Inner Class
     class CmdCenterAnimation extends AnimationTimer {
 
@@ -135,49 +135,54 @@ public class CmdCenter extends GameObject {
 
                 if (projectile.getY() >= -1) {
 
-                    for (int y = 0; y < actionPane.horde.length; y++) {
-                        for (int x = 0; x < actionPane.horde[y].length; x++) {
-                            boolean lowestCollumn = actionPane.collumnStates[x] == actionPane.horde.length - y - 1;
-                            if(lowestCollumn){
-                            if (projectile.getBoundsInParent().intersects(actionPane.horde[y][x].getBoundsInParent()) && actionPane.horde[y][x].visible == true) {
-                                Sound.playSound(1);
-                                actionPane.horde[y][x].toggleDestroyed();
+                    for (int y = 0; y < actionPane.getHord().getHordSize(); y++) {
+
+                        for (int x = 0; x < actionPane.getHord().getHordRowSize(y); x++) {
+
+                            boolean lowestCollumn = actionPane.getHord().getColumnStateValue(x) == actionPane.getHord().getHordSize() - y - 1;
+
+                            if (lowestCollumn) {
+
+                                Alien tempAlien = actionPane.getHord().getAlien(y, x);
+
+                                if (projectile.getBoundsInParent().intersects(tempAlien.getBoundsInParent()) && tempAlien.isAlive()) {
+                                    tempAlien.setAlive(false); 
+                                    Sound.playSound(1);
+                                    tempAlien.toggleDestroyed();
+                                    actionPane.getChildren().remove(projectile);
+                                    cmdCenterPoints += tempAlien.getPointValue();
+                                    actionPane.getHord().upateNumLiving();
+                                    updatePoints(cmdCenterPoints);
+                                    System.out.println(actionPane.getHord().getNumLiving());
+                                    actionPane.getHord().updateColumnState(x);
+                                    stop();
+
+                                }
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < actionPane.getChildren().size(); i++) {
+
+                        if (actionPane.getChildren().get(i) instanceof SpaceShip) {
+
+                            SpaceShip s = (SpaceShip) actionPane.getChildren().get(i);
+
+                            if (s.getBoundsInParent().intersects(projectile.getBoundsInParent())) {
+
                                 actionPane.getChildren().remove(projectile);
-                                actionPane.horde[y][x].visible = false;
-                                cmdCenterPoints += actionPane.horde[y][x].getPointValue();
-                                System.out.println(cmdCenterPoints);
-                                actionPane.collumnStates[x]++;
-                                stop();
+                                int spaceShipPnt = (s.getRandomIndex() + 1) * 100;
+                                cmdCenterPoints += spaceShipPnt;
+                                System.out.println(spaceShipPnt);
+                                s.togglePoint();
+                                
+                                      
+                                
 
                             }
-                        }
-                        }
-                    }
-                    
-                    for(int i = 0; i < actionPane.getChildren().size(); i++) {
-                     
-                        if(actionPane.getChildren().get(i) instanceof SpaceShip) {
-                        
-                            
-                            SpaceShip s = (SpaceShip) actionPane.getChildren().get(i); 
-                            
-                            if(s.getBoundsInParent().intersects(projectile.getBoundsInParent())) {
-                                
-                                actionPane.getChildren().remove(projectile);
-                                s.setVisible(false);
-                                s.setMoving(false);
-                                
-                                
-                                
-                            }
-                            
-                            
-                            
-                        
-                            
+
                         }
                     }
-                  
 
                     projectile.move();
 
@@ -195,12 +200,6 @@ public class CmdCenter extends GameObject {
 
 }
 
-
-
-
-
-
-
 /*
  for(int i = actionPane.getChildren().size() - 1; i > -1; i--) {
                                 if(actionPane.getChildren().get(i) instanceof Projectile) {
@@ -214,4 +213,4 @@ public class CmdCenter extends GameObject {
                                 }
                                 
                             }
-*/
+ */

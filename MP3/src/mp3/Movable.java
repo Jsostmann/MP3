@@ -15,6 +15,7 @@ public interface Movable {
     public static final double WEST = 180.0;
     public static final double NORTH = 270.0;
     public static final double SOUTH = 90.0;
+    public static final double NOWHERE = -1.0;
     
     public abstract void move();
     
