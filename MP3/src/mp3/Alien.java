@@ -16,6 +16,7 @@ import javafx.scene.image.Image;
  */
 public class Alien extends Invader {
 
+    private Projectile missle;
     private ActionPane actionPane;
     private int currentImage;
     private int type;
@@ -23,12 +24,10 @@ public class Alien extends Invader {
     private Rectangle2D[] viewPorts;
     public Rectangle2D destroyed;
     public Rectangle2D blank = new Rectangle2D(230, 353, 29, 17);
-    
 
     private void setSpriteSheet() {
         try {
-           
-           
+
             Image image = new Image(new FileInputStream("res/spritesheet.jpg"));
             this.setImage(image);
             this.setScaleX(1);
@@ -43,14 +42,19 @@ public class Alien extends Invader {
 
     public Alien(ActionPane actionPane, int type, int currentImage) {
 
+        super(0.0, 1.0, 0.0, 0.0, 0);
+
         setSpriteSheet();
-        this.currentImage = currentImage;
         this.actionPane = actionPane;
+        this.missle = new Projectile();
+        this.missle.setVisible(false);
+        this.actionPane.getChildren().add(missle);
+        this.currentImage = currentImage;
+
         this.type = type;
         viewPorts = new Rectangle2D[2];
         alive = true;
-        setSpeed(.5);
-        
+
         switch (type) {
 
             case 0:
@@ -72,15 +76,42 @@ public class Alien extends Invader {
     public void setAlive(boolean alive) {
         this.alive = alive;
     }
-    public boolean isAlive(){
+
+    public boolean isAlive() {
         return this.alive;
     }
+
+    public void setMissle() {
+
+        this.missle.setDirection(Movable.SOUTH);
+        this.missle.setX(getX() + this.getViewport().getWidth() / 2.0);
+        this.missle.setY(getY() + this.getViewport().getWidth() - 5.0);
+        this.missle.setVisible(true);
+
+    }
+
+    public Projectile getMissle() {
+        return this.missle;
+    }
+
+    public void fireMissle() {
     
-   
-    
+            
+            if (this.missle.getY() >= 600) {
+                
+                this.missle.setVisible(false); 
+                this.actionPane.getHord().setShot(false); 
+                
+            } else {
+                
+                this.missle.move();
+            
+        }
+
+    }
+
     private void createLargeAlien() {
-       
-        
+
         setPointValue(40);
         viewPorts[0] = new Rectangle2D(102, 415, 30, 21);
         viewPorts[1] = new Rectangle2D(102, 435, 30, 21);
@@ -103,15 +134,30 @@ public class Alien extends Invader {
         destroyed = new Rectangle2D(181, 421, 27, 18);
     }
 
-    
     public int getCurrentImage() {
         return currentImage;
     }
 
+    public void toggleImage() {
+        
+        this.setViewport(viewPorts[currentImage]); 
+        
+        switch(currentImage) {
+            case 0:
+                currentImage = 1;
+                break;
+            case 1: 
+                currentImage = 0;
+                break;
+        }
+        
+        
+    }
     public void toggleImage(int currentImage) {
 
         this.currentImage = currentImage;
-        this.setViewport(viewPorts[currentImage]);
+        this.setViewport(viewPorts[currentImage]); 
+        this.setVisible(true);
     }
 
     public void toggleDestroyed() {
@@ -120,22 +166,32 @@ public class Alien extends Invader {
     }
 
     public void toggleBlank() {
-        this.setViewport(blank);
+        
+        this.setVisible(false); 
     }
-    
-   
-    
 
-    
+    private void moveXY() {
+
+        if (this.getDirection() != Movable.SOUTH) {
+
+            double newX = getX() + getSpeed() * Math.cos(Math.toRadians(getDirection()));
+
+            setX(newX);
+
+        } else {
+
+            double newY = getY() + 5.0;
+
+            setY(newY);
+
+        }
+
+    }
 
     @Override
     public void move() {
-        
-        
-        double newX = getX() + getSpeed() * Math.cos(Math.toRadians(getDirection()));
-        setX(newX);
-        
-        
+
+        moveXY();
 
     }
 

@@ -5,16 +5,18 @@
  */
 package mp3;
 
+import java.util.Random;
+
 /**
  *
  * @author jamesostmann
  */
 public class TheHord {
 
+    private double imageChangeInterval;
     private double spaceX;
     private double spaceY;
     private int currentImageCount;
-    private boolean right, left;
     private Alien[][] aliens;
     private double direction;
     private double lastDirection;
@@ -22,9 +24,18 @@ public class TheHord {
     private boolean atEdge;
     private ActionPane actionPane;
     private int[] collumnStates;
+    private int currentSound;
+    private boolean shot;
+    private Random rand;
+    private Alien attackingAlien;
 
     public TheHord(ActionPane actionPane) {
-        this.spaceX = 0.0;
+        rand = new Random();
+        attackingAlien = null;
+        shot = false;
+        currentSound = 3;
+        imageChangeInterval = 0.0;
+        this.spaceX = 2.0;
         this.spaceY = 40.0;
         this.currentImageCount = 0;
         this.aliens = new Alien[5][11];
@@ -46,11 +57,7 @@ public class TheHord {
 
     public void initTheHord() {
 
-        this.spaceY = 40.0;
-
         double tempSpaceY = this.spaceY;
-
-        this.spaceX = 0.0;
 
         for (int y = 0; y < aliens.length; y++) {
             for (int x = 0; x < aliens[y].length; x++) {
@@ -79,7 +86,7 @@ public class TheHord {
 
                 spaceX += 45.0;
             }
-            spaceX = 0;
+            spaceX = 0.0;
 
             tempSpaceY += 30.0;
         }
@@ -91,7 +98,7 @@ public class TheHord {
         clearColumnStates();
         this.numLiving = 55;
 
-        this.spaceX = 0.0;
+        this.spaceX = 2.0;
         this.spaceY = 40;
 
         double tempSpaceY = this.spaceY;
@@ -100,18 +107,17 @@ public class TheHord {
             for (int x = 0; x < aliens[y].length; x++) {
 
                 Alien tempAlien = aliens[y][x];
-
-                tempAlien.setSpeed(.5);
+                tempAlien.toggleImage(0);
                 tempAlien.setAlive(true);
+
                 tempAlien.setX(tempAlien.getViewport().getWidth() + spaceX);
                 tempAlien.setY(tempAlien.getViewport().getHeight() + tempSpaceY);
 
-                aliens[y][x] = tempAlien;
                 spaceX += 45.0;
 
             }
 
-            spaceX = 0;
+            spaceX = 0.0;
             tempSpaceY += 30;
 
         }
@@ -123,7 +129,8 @@ public class TheHord {
         for (int y = 0; y < aliens.length; y++) {
             for (int x = 0; x < aliens[y].length; x++) {
 
-                if (aliens[y][x].isAlive() && aliens[y][x].getY() > 549) {
+                if (aliens[y][x].isAlive() && aliens[y][x].getY() >= 549) {
+                    this.spaceY = 40.0;
 
                     return true;
 
@@ -140,7 +147,7 @@ public class TheHord {
         clearColumnStates();
         this.numLiving = 55;
 
-        this.spaceX = 0.0;
+        this.spaceX = 2.0;
         this.spaceY += 40;
 
         double tempSpaceY = this.spaceY;
@@ -149,53 +156,62 @@ public class TheHord {
             for (int x = 0; x < aliens[y].length; x++) {
 
                 Alien tempAlien = aliens[y][x];
-                tempAlien.setSpeed(.5);
+
                 tempAlien.setAlive(true);
                 tempAlien.setX(tempAlien.getViewport().getWidth() + spaceX);
                 tempAlien.setY(tempAlien.getViewport().getHeight() + tempSpaceY);
-                tempAlien.toggleImage(0); 
-                aliens[y][x] = tempAlien;
+                tempAlien.toggleImage();
 
                 spaceX += 45.0;
             }
 
-            spaceX = 0;
+            spaceX = 0.0;
             tempSpaceY += 30.0;
         }
 
     }
 
-    public void changeDirection() {
+    public void checkChangeDirection() {
 
-        /*
-        if x >= 545 
-        set prev to east
-        set dir to south
-      
-        if x<= 0 
-        set prev to west
-        set dir to south
-      
-         */
- /*
-      if east and prev is south 
-        set prev to east
-        set dir to south
-        
-      
-      if west and prev is south 
-        set prev to west
-        set dir to south
-      
-      if south and prev is east
-        set prev to south
-        set dir to west
-      
-      if south and prev is west 
-        set prev to south
-        set dir to east
-        
-         */
+        if (atEdge) {
+
+            if (this.lastDirection == Movable.EAST) {
+                this.direction = Movable.WEST;
+                this.lastDirection = Movable.SOUTH;
+
+            } else if (this.lastDirection == Movable.WEST) {
+                this.direction = Movable.EAST;
+                this.lastDirection = Movable.SOUTH;
+
+            }
+
+            atEdge = false;
+            return;
+        }
+
+        for (int y = 0; y < aliens.length; y++) {
+            for (int x = 0; x < aliens[y].length; x++) {
+
+                Alien temp = aliens[y][x];
+
+                if (temp.getX() + temp.getViewport().getWidth() >= 545 && temp.isAlive()) {
+                    this.lastDirection = Movable.EAST;
+                    this.direction = Movable.SOUTH;
+                    atEdge = true;
+                    break;
+                }
+
+                if (temp.getX() <= -1 && temp.isAlive()) {
+
+                    this.lastDirection = Movable.WEST;
+                    this.direction = Movable.SOUTH;
+                    atEdge = true;
+                    break;
+                }
+
+            }
+        }
+
     }
 
     public boolean AllDestroyed() {
@@ -203,49 +219,108 @@ public class TheHord {
         return this.numLiving == 0;
     }
 
-    public void checkMove() {
+    public void playSound() {
 
-        for (Alien[] alienHorde : aliens) {
-            for (Alien alien : alienHorde) {
+        currentSound++;
 
-                if (alien.getX() <= 0 && alien.isAlive()) {
-                    left = true;
-                    right = false;
+        if (currentSound > 7) {
 
-                }
-
-                if (alien.getX() + alien.getViewport().getWidth() >= 545 && alien.isAlive()) {
-
-                    right = true;
-                    left = false;
-
-                }
-
-            }
+            currentSound = 4;
         }
+
+        Sound.playSound(currentSound);
 
     }
 
     public void move() {
 
-        checkMove();
+        checkChangeDirection();
+        fireRandomMissle();
 
-        for (Alien alienHorde[] : aliens) {
-            for (Alien alien : alienHorde) {
+        for (int y = 0; y < aliens.length; y++) {
+            for (int x = 0; x < aliens[y].length; x++) {
 
-                if (left || right) {
-
-                    alien.setSpeed(-alien.getSpeed());
-                    alien.setY(alien.getY() + 5.0);
+                Alien temp = aliens[y][x];
+                temp.setDirection(direction);
+                temp.move();
+             /*  
+                if(this.imageChangeInterval >= 1) {
+                    if(temp.isAlive()) {
+                        temp.toggleImage();
+                    } else {
+                        temp.toggleBlank();
+                    }
+                   
                 }
-
-                //alien.setX(alien.getX() + alien.getSpeed() * Math.cos(Math.toRadians(alien.getDirection())));
-                alien.move();
+                */
             }
+
+        }
+      /*  
+        if(this.imageChangeInterval >=1) {
+            this.imageChangeInterval = 0;
+        }
+        this.imageChangeInterval += .03;
+        
+        */
+
+        
+        if (this.imageChangeInterval >= 1) {
+
+            // playSound();
+            this.changeHordImages(); 
+            this.imageChangeInterval = 0.0;
         }
 
-        right = false;
-        left = false;
+        this.imageChangeInterval += .03;
+
+    }
+
+    public void switchImage(){
+    
+        
+        
+    }
+    
+    public void setShot(boolean shot) {
+        this.shot = shot;
+    }
+
+    public boolean isShot() {
+        return this.shot;
+    }
+
+    public void fireRandomMissle() {
+
+        if (!shot) {
+
+            int y = rand.nextInt(5);
+            int x = rand.nextInt(11);
+            int chance = rand.nextInt(10);
+            Alien random = aliens[y][x];
+            
+            if (chance == 5) {
+                
+                if (collumnStates[x] == aliens.length - y - 1) {
+
+                    if (!random.getMissle().isVisible()) {
+
+                        attackingAlien = random;
+                        shot = true;
+                        attackingAlien.setMissle();
+
+                    }
+
+                }
+
+            }
+        } 
+
+        if (shot) {
+
+            attackingAlien.fireMissle();
+
+        }
 
     }
 
@@ -260,15 +335,17 @@ public class TheHord {
     }
 
     public void speedUp() {
+
         for (Alien[] horde : aliens) {
             for (Alien alien : horde) {
 
                 if (alien.getSpeed() < 0) {
 
-                    alien.setSpeed(alien.getSpeed() - 0.005);
+                    alien.setSpeed(alien.getSpeed() - 0.05);
+
                 } else {
 
-                    alien.setSpeed(alien.getSpeed() + 0.005);
+                    alien.setSpeed(alien.getSpeed() + 0.05);
 
                 }
             }
@@ -314,8 +391,9 @@ public class TheHord {
     public int getColumnStateValue(int column) {
         return collumnStates[column];
     }
+    
 
-    public void changeHordImages() {
+         public void changeHordImages() {
 
         for (int y = 0; y < aliens.length; y++) {
             for (int x = 0; x < aliens[y].length; x++) {
@@ -346,5 +424,6 @@ public class TheHord {
 
         }
 
-    }
+    } 
 }
+

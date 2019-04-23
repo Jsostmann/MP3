@@ -7,7 +7,6 @@ package mp3;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import javafx.animation.AnimationTimer;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 
@@ -20,7 +19,7 @@ public class CmdCenter extends GameObject {
     private int cmdCenterPoints;
     private Projectile projectile;
     private ActionPane actionPane;
-    private CmdCenterAnimation t;
+    
 
     public CmdCenter() {
 
@@ -29,15 +28,25 @@ public class CmdCenter extends GameObject {
 
     public CmdCenter(ActionPane actionPane) {
         
-        this.cmdCenterPoints = 0;
+        super(Movable.NOWHERE,5.0,actionPane.getPrefWidth(),actionPane.getPrefHeight());
+       
+
+        cmdCenterPoints = 0;
         this.actionPane = actionPane;
-        this.setSpeed(10.0);
-        this.setDirection(NOWHERE);
-        this.setCmdViewPort();
-        this.setParentWidth(actionPane.getPrefWidth());
-        this.setParentHeight(actionPane.getPrefHeight());
-        actionPane.getChildren().add(this); 
- 
+       
+        setCmdViewPort();
+        initProjectile();
+        
+        this.actionPane.getChildren().add(projectile);
+    }
+
+    private void initProjectile() {
+        
+        projectile = new Projectile();
+        projectile.setX(getX() + getViewport().getWidth() / 2.0);
+        projectile.setY(getY() + 1.0);
+        projectile.setVisible(false);
+        projectile.setShot(false);
     }
 
     private void setCmdViewPort() {
@@ -60,15 +69,87 @@ public class CmdCenter extends GameObject {
             System.err.println("Couldnt find SpriteSheet");
             System.exit(-1);
         }
+        
+        actionPane.getChildren().add(this);
     }
 
     public void fireProjectile() {
 
-      
-        t = new CmdCenterAnimation();
-        t.start();
-        Sound.playSound(0);
+        if (!projectile.isVisible()) {
 
+            projectile.setX(getX() + getViewport().getWidth() / 2.0);
+            projectile.setY(getY() + 1.0);
+
+            projectile.setVisible(true);
+            
+            Sound.playSound(0);
+
+        }
+        
+        if (projectile.isVisible() && projectile.getY() >= 15) {
+
+           
+                checkForHitSpaceShip();
+
+                checkForHitAlien();
+
+                projectile.move();
+
+        } else {
+
+                projectile.setShot(false);
+                projectile.setVisible(false);
+            }
+        }
+
+    
+
+
+    public void checkForHitSpaceShip() {
+
+        SpaceShip s = actionPane.getSpaceShip();
+
+        if (s.isVisible() && !s.isHit()) {
+
+            if (projectile.intersects(s.getBoundsInParent())) {
+                Sound.playSound(1); 
+                s.togglePoint();
+                projectile.setVisible(false);
+                projectile.setShot(false);
+            }
+
+        }
+
+    }
+
+    public void checkForHitAlien() {
+
+        for (int y = 0; y < actionPane.getHord().getHordSize(); y++) {
+
+            for (int x = 0; x < actionPane.getHord().getHordRowSize(y); x++) {
+
+                boolean lowestCollumn = actionPane.getHord().getColumnStateValue(x) == actionPane.getHord().getHordSize() - y - 1;
+
+                if (lowestCollumn) {
+
+                    Alien tempAlien = actionPane.getHord().getAlien(y, x);
+
+                    if (projectile.getBoundsInParent().intersects(tempAlien.getBoundsInParent()) && tempAlien.isAlive()) {
+                        tempAlien.setAlive(false);
+                        Sound.playSound(1);
+                        tempAlien.toggleDestroyed();
+                        projectile.setVisible(false);
+                        projectile.setShot(false);
+                        cmdCenterPoints += tempAlien.getPointValue();
+                        actionPane.getHord().upateNumLiving();
+                        updatePoints(cmdCenterPoints);
+                        System.out.println(actionPane.getHord().getNumLiving());
+                        actionPane.getHord().updateColumnState(x);
+
+                    }
+                }
+            }
+        }
     }
 
     public Projectile getProjectile() {
@@ -83,7 +164,7 @@ public class CmdCenter extends GameObject {
     public void move() {
 
         double newX = this.getX();
-        
+
         if (getDirection() != NOWHERE) {
             if (getDirection() == EAST && this.getX() + this.getViewport().getWidth() <= 545) {
 
@@ -103,114 +184,19 @@ public class CmdCenter extends GameObject {
         }
     }
 
-     public ActionPane getActionPane(){
-         return this.actionPane;
-     }       
-   
-     public int getCmdCenterPoints() {
-         return this.cmdCenterPoints;
-     }
-     
-     public void updatePoints(int pts) {
-         StatusPane.updateStatus(CmdCenter.this,pts); 
-     }
-    // Inner Class
-    class CmdCenterAnimation extends AnimationTimer {
-
-        public long previous = 0;
-        private Projectile projectile;
-
-        public CmdCenterAnimation() {
-
-            projectile = new Projectile();
-            projectile.setX(getX() + getViewport().getWidth() / 2.0);
-            projectile.setY(getY() + 2.0);
-            actionPane.getChildren().add(projectile);
-        }
-
-        @Override
-        public void handle(long now) {
-
-            if (now - previous >= 20000) {
-
-                if (projectile.getY() >= -1) {
-
-                    for (int y = 0; y < actionPane.getHord().getHordSize(); y++) {
-
-                        for (int x = 0; x < actionPane.getHord().getHordRowSize(y); x++) {
-
-                            boolean lowestCollumn = actionPane.getHord().getColumnStateValue(x) == actionPane.getHord().getHordSize() - y - 1;
-
-                            if (lowestCollumn) {
-
-                                Alien tempAlien = actionPane.getHord().getAlien(y, x);
-
-                                if (projectile.getBoundsInParent().intersects(tempAlien.getBoundsInParent()) && tempAlien.isAlive()) {
-                                    tempAlien.setAlive(false); 
-                                    Sound.playSound(1);
-                                    tempAlien.toggleDestroyed();
-                                    actionPane.getChildren().remove(projectile);
-                                    cmdCenterPoints += tempAlien.getPointValue();
-                                    actionPane.getHord().upateNumLiving();
-                                    updatePoints(cmdCenterPoints);
-                                    System.out.println(actionPane.getHord().getNumLiving());
-                                    actionPane.getHord().updateColumnState(x);
-                                    stop();
-
-                                }
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < actionPane.getChildren().size(); i++) {
-
-                        if (actionPane.getChildren().get(i) instanceof SpaceShip) {
-
-                            SpaceShip s = (SpaceShip) actionPane.getChildren().get(i);
-
-                            if (s.getBoundsInParent().intersects(projectile.getBoundsInParent())) {
-
-                                actionPane.getChildren().remove(projectile);
-                                int spaceShipPnt = (s.getRandomIndex() + 1) * 100;
-                                cmdCenterPoints += spaceShipPnt;
-                                System.out.println(spaceShipPnt);
-                                s.togglePoint();
-                                
-                                      
-                                
-
-                            }
-
-                        }
-                    }
-
-                    projectile.move();
-
-                } else {
-
-                    actionPane.getChildren().remove(projectile);
-
-                }
-
-            }
-
-            previous = now;
-        }
+    public ActionPane getActionPane() {
+        return this.actionPane;
     }
 
+    public int getCmdCenterPoints() {
+        return this.cmdCenterPoints;
+    }
+
+    public void updatePoints(int pts) {
+        StatusPane.updateStatus(CmdCenter.this, pts);
+    }
+
+    // Inner Class
+    
 }
 
-/*
- for(int i = actionPane.getChildren().size() - 1; i > -1; i--) {
-                                if(actionPane.getChildren().get(i) instanceof Projectile) {
-                                   Projectile p = (Projectile) actionPane.getChildren().get(i);
-                                   p.move();
-                                }
-
- for(int i = actionPane.getChildren().size() - 1; i > -1; i--) {
-                                if(actionPane.getChildren().get(i) instanceof Projectile) {
-                                    actionPane.getChildren().removeAll(actionPane.getChildren().get(i)); 
-                                }
-                                
-                            }
- */

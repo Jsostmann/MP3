@@ -9,6 +9,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -32,7 +36,7 @@ public class StatusPane extends HBox {
         scoreValue.setFont(new Font(25));
         scoreValue.setTextFill(Color.RED);  
         
-        
+        this.setBorder(new Border(new BorderStroke(Color.GREEN,BorderStrokeStyle.SOLID,null,new BorderWidths(0,0,2,0),null))); 
         this.setBackground(new Background(new BackgroundFill(Color.BLACK,null,null)));  
         
         this.setSpacing(50.0); 

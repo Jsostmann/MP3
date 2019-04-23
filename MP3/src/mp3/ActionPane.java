@@ -29,12 +29,15 @@ public class ActionPane extends Pane {
         spaceShip = new SpaceShip(this);
         horde = new TheHord(this);
         cmdCenter = new CmdCenter(this); 
+        
         this.gamePane = gamePane;
         this.setHeight(600.0);
         this.setWidth(550.0);
         this.setBackgroundImage();
-       
-      
+        
+        
+        
+        
 
     }
     public GamePane getGamePane() {

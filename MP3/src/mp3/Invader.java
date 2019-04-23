@@ -10,17 +10,23 @@ package mp3;
  * @author jamesostmann
  */
 public abstract class Invader extends GameObject {
-    
+
     private int pointValue;
-    
+
     public Invader() {
-    
-        this(0);
-    
+
+        this(0.0, 0.0, 0.0, 0.0, 0);
+
     }
-    
+
     public Invader(int pointValue) {
-    
+
+        this(0.0, 0.0, 0.0, 0.0, pointValue);
+    }
+
+    public Invader(double direction, double speed, double parentWidth, double parentHeight, int pointValue) {
+
+        super(direction, speed, parentWidth, parentHeight);
         this.pointValue = pointValue;
     }
 
@@ -31,6 +37,5 @@ public abstract class Invader extends GameObject {
     public void setPointValue(int pointValue) {
         this.pointValue = pointValue;
     }
-    
-    
+
 }
