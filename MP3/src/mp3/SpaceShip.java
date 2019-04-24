@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package mp3;
 
 import java.io.FileInputStream;
@@ -58,15 +54,15 @@ public class SpaceShip extends Invader {
         try {
 
             Image image = new Image(new FileInputStream("res/spritesheet.jpg"));
-            this.setImage(image);
+            setImage(image);
             images[0] = image;
 
             Rectangle2D view = new Rectangle2D(168, 177, 42, 19);
             viewPorts[0] = view;
 
             setViews();
-            this.setImage(images[0]);
-            this.setViewport(viewPorts[0]);
+            setImage(images[0]);
+            setViewport(viewPorts[0]);
 
             resetLocation();
             setSpeed(1);
@@ -80,8 +76,8 @@ public class SpaceShip extends Invader {
         actionPane.getChildren().add(this);
 
     }
-
     private void setViews() {
+        
         try {
 
             Image pointsImage = new Image(new FileInputStream("res/points.png"));
@@ -94,30 +90,29 @@ public class SpaceShip extends Invader {
             viewPorts[3] = new Rectangle2D(107, 263, 116, 67);
 
         } catch (FileNotFoundException e) {
+            
             System.err.println("Couldnt find SpriteSheet");
             System.exit(-1);
 
         }
 
     }
-
     public void resetLocation() {
 
         setDirection(randomDirections[rand.nextInt(2)]);
 
-        if (this.getDirection() == randomDirections[0]) {
+        if (getDirection() == randomDirections[0]) {
 
-            this.setX(-this.getViewport().getWidth());
+            setX(-getViewport().getWidth());
 
-        } else if (this.getDirection() == randomDirections[1]) {
+        } else if (getDirection() == randomDirections[1]) {
 
-            this.setX(545);
+            setX(545);
 
         }
 
-        this.setY(25);
+        setY(25);
     }
-
     public void launch() {
 
         if (canLaunch()) {
@@ -133,7 +128,6 @@ public class SpaceShip extends Invader {
         }
 
     }
-
     public boolean isShowingDead() {
 
         if (hit) {
@@ -141,23 +135,20 @@ public class SpaceShip extends Invader {
             textInterval += 15;
         }
 
-        return this.textInterval <= 2000;
+        return textInterval <= 2000;
 
     }
-
     public boolean canLaunch() {
 
         currentTime += 15;
 
-        return currentTime >= this.randomInterval && !this.hit;
+        return currentTime >= randomInterval && !hit;
 
     }
-
     public void setHit(boolean hit) {
 
         this.hit = hit;
     }
-
     public void resetSpaceShip() {
 
         currentPoint = rand.nextInt(3);
@@ -169,42 +160,42 @@ public class SpaceShip extends Invader {
         toggleShip();
 
     }
-
     public boolean isHit() {
+        
         return hit;
     }
-
     public void togglePoint() {
 
-        this.setHit(true);
-        this.setImage(images[1]);
-        this.setViewport(viewPorts[currentPoint + 1]);
-        this.setScaleX(.3);
-        this.setScaleY(.3);
+        setHit(true);
+        setImage(images[1]);
+        setViewport(viewPorts[currentPoint + 1]);
+        setScaleX(.3);
+        setScaleY(.3);
 
     }
-
     public void toggleShip() {
 
-        this.setVisible(false);
-        this.setHit(false);
-        this.setImage(images[0]);
-        this.setViewport(viewPorts[0]);
-        this.setScaleX(1);
-        this.setScaleY(1);
+        setVisible(false);
+        setHit(false);
+        setImage(images[0]);
+        setViewport(viewPorts[0]);
+        setScaleX(1);
+        setScaleY(1);
     }
-
     private boolean isEnteringActionPane() {
-        return this.getX() == -this.getViewport().getWidth() || this.getX() == 545;
+        return getX() == -getViewport().getWidth() || getX() == 545;
     }
-
     private boolean atEdge() {
 
-        return this.getX() <= -this.getViewport().getWidth() && this.getDirection() == randomDirections[1]
-                || this.getX() >= 545 && this.getDirection() == randomDirections[0];
+        return getX() <= -getViewport().getWidth() && getDirection() == randomDirections[1]
+                || getX() >= 545 && getDirection() == randomDirections[0];
 
     }
+    public int getCurrentPoint(){
+        return currentPoint;
+    }
 
+    
     @Override
     public void move() {
 
@@ -213,7 +204,7 @@ public class SpaceShip extends Invader {
         }
 
         if (!isVisible()) {
-            this.setVisible(true);
+            setVisible(true);
         }
 
         if (atEdge()) {

@@ -20,13 +20,15 @@ public class Projectile extends GameObject {
 
     public Projectile() {
         
-        super(Movable.NORTH,5.0,0.0,0.0);
+        super(Movable.NORTH,7.0,0.0,0.0);
         
         this.shot = false;
         setProjectileImage();
 
     }
 
+    
+    
     private void setProjectileImage() {
 
         try {

@@ -16,7 +16,7 @@ import javafx.scene.image.Image;
  */
 public class Alien extends Invader {
 
-    private Projectile missle;
+    private Missile missile;
     private ActionPane actionPane;
     private int currentImage;
     private int type;
@@ -42,13 +42,13 @@ public class Alien extends Invader {
 
     public Alien(ActionPane actionPane, int type, int currentImage) {
 
-        super(0.0, 1.0, 0.0, 0.0, 0);
+        super(0.0, 0.6, 0.0, 0.0, 0);
 
         setSpriteSheet();
         this.actionPane = actionPane;
-        this.missle = new Projectile();
-        this.missle.setVisible(false);
-        this.actionPane.getChildren().add(missle);
+        this.missile = new Missile();
+        
+        this.actionPane.getChildren().add(missile);
         this.currentImage = currentImage;
 
         this.type = type;
@@ -81,30 +81,39 @@ public class Alien extends Invader {
         return this.alive;
     }
 
-    public void setMissle() {
+    public void resetMissile(){
+        
+        this.missile.setDirection(Movable.SOUTH);
+        this.missile.setX(getX() + this.getViewport().getWidth() / 2.0);
+        this.missile.setY(getY() + this.getViewport().getWidth() - 5.0);
+        this.missile.setVisible(false); 
+    }
+    
+    public void setMissile() {
 
-        this.missle.setDirection(Movable.SOUTH);
-        this.missle.setX(getX() + this.getViewport().getWidth() / 2.0);
-        this.missle.setY(getY() + this.getViewport().getWidth() - 5.0);
-        this.missle.setVisible(true);
+        this.missile.setDirection(Movable.SOUTH);
+        this.missile.setX(getX() + this.getViewport().getWidth() / 2.0);
+        this.missile.setY(getY() + this.getViewport().getWidth() - 5.0);
+        this.missile.setVisible(true);
 
     }
 
-    public Projectile getMissle() {
-        return this.missle;
+    public Missile getMissile() {
+        return this.missile;
     }
 
-    public void fireMissle() {
+    public void fireMissile() {
     
             
-            if (this.missle.getY() >= 600) {
+            if (this.missile.getY() + missile.getViewport().getHeight() >= 552 + actionPane.getCmdCenter().getViewport().getHeight() * .5) {
                 
-                this.missle.setVisible(false); 
+                this.missile.setVisible(false); 
                 this.actionPane.getHord().setShot(false); 
                 
             } else {
                 
-                this.missle.move();
+                this.actionPane.getHord().checkForHitMissile();
+                this.missile.move();
             
         }
 

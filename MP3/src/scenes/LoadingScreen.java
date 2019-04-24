@@ -7,6 +7,8 @@ package scenes;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -23,6 +25,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import mp3.SpaceInvadersApplication;
+import mp3.StatusPane;
 
 /**
  *
@@ -30,7 +34,8 @@ import javafx.scene.text.Font;
  */
 public class LoadingScreen extends VBox {
     
-   
+   private ButtonHandler buttonHandler;
+    
     private Image bgImage;
     private Label[] labels;
     private ImageView[] imageViews;
@@ -42,7 +47,7 @@ public class LoadingScreen extends VBox {
     
     public LoadingScreen(){
         
-        
+        buttonHandler = new ButtonHandler();
         
         imageViews = new ImageView[4];
         createImageViews();
@@ -56,11 +61,11 @@ public class LoadingScreen extends VBox {
         createLabels();
         
         
-        buttons = new Button[2];
+        buttons = new Button[3];
         buttonRow = new HBox();
         createButtonRow();
         
-        setPadding(new Insets(115,0,0,0));   
+        setPadding(new Insets(165,0,0,0));   
         setSpacing(50.0);
         setPrefSize(550,700); 
         BackgroundSize backgroundSize = new BackgroundSize(550,700,false,false,false,false);
@@ -82,7 +87,13 @@ public class LoadingScreen extends VBox {
         }
         
         buttons[0].setText("Start Game"); 
+        buttons[0].setOnAction(buttonHandler);
+        
         buttons[1].setText("Exit Game");
+        buttons[1].setOnAction(buttonHandler); 
+        
+        buttons[2].setText("Reset Game"); 
+        buttons[2].setOnAction(buttonHandler); 
         
         this.getChildren().add(buttonRow);
         
@@ -161,6 +172,36 @@ public class LoadingScreen extends VBox {
             System.err.println("Couldnt find SpriteSheet");
             System.exit(-1);
         }
+    }
+    
+    
+    
+    // Inner classes for button events
+    class ButtonHandler implements EventHandler<ActionEvent>{
+
+        @Override
+        public void handle(ActionEvent event) {
+            
+            Button button = (Button) event.getSource();
+            
+            if(button == buttons[0]) {
+            
+            SpaceInvadersApplication.SwitchScene(SpaceInvadersApplication.getGameScene());
+            
+            } else if(button == buttons[1]) {
+                
+                System.exit(0); 
+            
+            } else if(button == buttons[2]) {
+            
+                
+               SpaceInvadersApplication.controller.setHighScore(0);
+               StatusPane.ResetHighScore();
+              
+                
+            }
+        }
+    
     }
     
 }

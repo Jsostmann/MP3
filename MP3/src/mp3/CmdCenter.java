@@ -16,10 +16,10 @@ import javafx.scene.image.Image;
  */
 public class CmdCenter extends GameObject {
 
+    private int numLives;
     private int cmdCenterPoints;
     private Projectile projectile;
     private ActionPane actionPane;
-    
 
     public CmdCenter() {
 
@@ -27,21 +27,43 @@ public class CmdCenter extends GameObject {
     }
 
     public CmdCenter(ActionPane actionPane) {
-        
-        super(Movable.NOWHERE,5.0,actionPane.getPrefWidth(),actionPane.getPrefHeight());
-       
 
+        super(Movable.NOWHERE, 5.0, actionPane.getPrefWidth(), actionPane.getPrefHeight());
+
+        numLives = 3;
         cmdCenterPoints = 0;
         this.actionPane = actionPane;
-       
+
         setCmdViewPort();
         initProjectile();
-        
+
         this.actionPane.getChildren().add(projectile);
     }
 
+    public int getNumLives() {
+
+        return this.numLives;
+    }
+
+    public void removeLife() {
+
+        this.numLives--;
+
+    }
+
+    public int resetPoints() {
+        this.cmdCenterPoints = 0;
+        return this.cmdCenterPoints;
+
+    }
+
+    public void setNumLives(int numLives) {
+
+        this.numLives = numLives;
+    }
+
     private void initProjectile() {
-        
+
         projectile = new Projectile();
         projectile.setX(getX() + getViewport().getWidth() / 2.0);
         projectile.setY(getY() + 1.0);
@@ -69,10 +91,18 @@ public class CmdCenter extends GameObject {
             System.err.println("Couldnt find SpriteSheet");
             System.exit(-1);
         }
-        
+
         actionPane.getChildren().add(this);
     }
 
+    public void resetProjetile() {
+        projectile.setX(getX() + getViewport().getWidth() / 2.0);
+        projectile.setY(getY() + 1.0);
+        projectile.setVisible(false);
+        projectile.setShot(false);
+         
+    }
+    
     public void fireProjectile() {
 
         if (!projectile.isVisible()) {
@@ -81,29 +111,27 @@ public class CmdCenter extends GameObject {
             projectile.setY(getY() + 1.0);
 
             projectile.setVisible(true);
-            
+
             Sound.playSound(0);
 
         }
-        
+
         if (projectile.isVisible() && projectile.getY() >= 15) {
 
-           
-                checkForHitSpaceShip();
+            checkForHitSpaceShip();
 
-                checkForHitAlien();
+            checkForHitAlien();
 
-                projectile.move();
+            checkForHitMissile();
+
+            projectile.move();
 
         } else {
 
-                projectile.setShot(false);
-                projectile.setVisible(false);
-            }
+            projectile.setShot(false);
+            projectile.setVisible(false);
         }
-
-    
-
+    }
 
     public void checkForHitSpaceShip() {
 
@@ -112,12 +140,38 @@ public class CmdCenter extends GameObject {
         if (s.isVisible() && !s.isHit()) {
 
             if (projectile.intersects(s.getBoundsInParent())) {
-                Sound.playSound(1); 
+                Sound.playSound(1);
                 s.togglePoint();
+                cmdCenterPoints += s.getCurrentPoint() * 100;
+                System.out.println(s.getCurrentPoint()); 
+                updatePoints(cmdCenterPoints);
                 projectile.setVisible(false);
                 projectile.setShot(false);
+
             }
 
+        }
+
+    }
+
+    public void checkForHitMissile() {
+
+        Alien tempAlien = actionPane.getHord().getAttackingAlien();
+
+        if (tempAlien != null) {
+
+            Missile tempMissile = tempAlien.getMissile();
+
+            if (tempMissile.isVisible()) {
+
+                if (projectile.getBoundsInParent().intersects(tempMissile.getBoundsInParent())) {
+
+                    projectile.setVisible(false);
+                    projectile.setShot(false);
+
+                    tempAlien.resetMissile();
+                }
+            }
         }
 
     }
@@ -145,7 +199,7 @@ public class CmdCenter extends GameObject {
                         updatePoints(cmdCenterPoints);
                         System.out.println(actionPane.getHord().getNumLiving());
                         actionPane.getHord().updateColumnState(x);
-
+                        break;
                     }
                 }
             }
@@ -168,7 +222,7 @@ public class CmdCenter extends GameObject {
         if (getDirection() != NOWHERE) {
             if (getDirection() == EAST && this.getX() + this.getViewport().getWidth() <= 545) {
 
-                this.setDirection(EAST);
+
                 newX += getSpeed() * Math.cos(Math.toRadians(getDirection()));
 
             }
@@ -193,10 +247,8 @@ public class CmdCenter extends GameObject {
     }
 
     public void updatePoints(int pts) {
-        StatusPane.updateStatus(CmdCenter.this, pts);
+        
+        StatusPane.updateStatus(this, pts);
     }
 
-    // Inner Class
-    
 }
-

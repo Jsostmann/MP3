@@ -35,8 +35,8 @@ public class ActionPane extends Pane {
         this.setWidth(550.0);
         this.setBackgroundImage();
         
-        
-        
+        this.gamePane.setCenter(this);
+         
         
 
     }

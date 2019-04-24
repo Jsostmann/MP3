@@ -19,7 +19,7 @@ public class SpaceInvadersIO {
     
     private int highScore;
     private final String fName = "data/data.txt"; 
-    
+    //private final File  file = new File(fName);
     
     public void readData() {
         
@@ -66,6 +66,8 @@ public class SpaceInvadersIO {
         return this.highScore;
     
     }
+    
+    
     
     @Override
     public String toString(){
